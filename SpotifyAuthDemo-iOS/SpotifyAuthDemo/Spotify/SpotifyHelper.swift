@@ -1,13 +1,7 @@
-//
-//  SpotifyHelper.swift
-//  Wear_new
-//
-//  Created by iosdv on 2020/5/20.
-//  Copyright © 2020 quan. All rights reserved.
-//
-
 import Foundation
 import WebKit
+import Logging
+import SafariServices
 
 //MARK: SpotifyPersistenceToken protocol
 protocol SpotifyPersistenceToken {
@@ -84,23 +78,12 @@ struct SpotifyAuthWithSDK: SpotifyAuthControl {
         guard self.spotifySessionManager.isSpotifyAppInstalled else {
             return false
         }
-        if #available(iOS 11.0, *) {
-            self.getSession()
-        } else {
-            self.getSessionBeforeiOS11(viewController)
-        }
+        self.getSession()
         return true
     }
     
-    @available(iOS 11.0, *)
     private func getSession() {
         self.spotifySessionManager.initiateSession(with: self.sptScope, options: .default)
-    }
-    private func getSessionBeforeiOS11(_ viewController: UIViewController?) {
-        guard let viewController = viewController else {
-            return
-        }
-        self.spotifySessionManager.initiateSession(with: self.sptScope, options: .default, presenting: viewController)
     }
     
     func renewSession(refreshToken: String?) -> Bool {
@@ -150,7 +133,7 @@ class SpotifyAuthWithWeb: SpotifyAuthControl {
         guard let scope = spotifyConfig.requestedScopesString.joined(separator: " ").addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
             return false
         }
-        guard let presentedVC = viewController ?? UIApplication.AppDelegate.window?.topMostController else {
+        guard let presentedVC = viewController else {
             logger.error("initiateSession presentedVC notfound")
             return false
         }
@@ -180,7 +163,7 @@ class SpotifyAuthWithWeb: SpotifyAuthControl {
             try self.requestRenewToken(refreshToken: token)
             return true
         } catch {
-            logger.error(error.localizedDescription)
+            logger.error("\(error.localizedDescription)")
             return false
         }
     }
@@ -281,12 +264,12 @@ class SpotifyAuthWithWeb: SpotifyAuthControl {
     private func postFormData<T>(response: T.Type, request: URLRequest, complete: @escaping (T?) -> Void) -> URLSessionDataTask where T: Decodable {
         let task = URLSession.shared.dataTask(with: request) { (data, res, error) in
             if let error = error {
-                logger.error(error.localizedDescription)
+                logger.error("\(error.localizedDescription)")
                 complete(nil)
                 return
             }
             guard let data = data else {
-                logger.error(SpotifyError.DataReadFail)
+                logger.error("\(SpotifyError.DataReadFail)")
                 complete(nil)
                 return
             }
@@ -295,7 +278,7 @@ class SpotifyAuthWithWeb: SpotifyAuthControl {
             decoder.dateDecodingStrategy = .iso8601
             
             guard let object = try? decoder.decode(T.self, from: data) else {
-                logger.error(SpotifyError.DataDecodeFail)
+                logger.error("\(SpotifyError.DataDecodeFail)")
                 complete(nil)
                 return
             }

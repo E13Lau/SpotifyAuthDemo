@@ -1,21 +1,13 @@
-//
-//  SpotifyModel.swift
-//  Wear_new
-//
-//  Created by iosdv on 2020/5/20.
-//  Copyright © 2020 quan. All rights reserved.
-//
-
 import Foundation
 
 struct SpotifyConfigurate {
     let clientID = "xxxxxxxx"
     let redirectURI = "xxxxxxxxx"
     var swapURLTest: String {
-        return "\(Define.DomainUrl)/app/tokenSwap"
+        return "https://192.168.1.5/app/tokenSwap"
     }
     var refreshURLTest: String {
-        return "\(Define.DomainUrl)/app/tokenRefresh"
+        return "https://192.168.1.5/app/tokenRefresh"
     }
     
     var requestedScopes: SPTScope {

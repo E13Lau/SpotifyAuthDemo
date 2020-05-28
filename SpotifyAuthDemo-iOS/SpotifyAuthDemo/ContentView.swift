@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  SpotifyAuthDemo
-//
-//  Created by iosdv on 2020/5/14.
-//
-
 import SwiftUI
 
 struct ContentView: View {

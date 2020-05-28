@@ -1,11 +1,3 @@
-//
-//  SpotifyManager+Request.swift
-//  Wear_new
-//
-//  Created by iosdv on 2020/5/20.
-//  Copyright © 2020 quan. All rights reserved.
-//
-
 import Foundation
 
 // MARK: - Action

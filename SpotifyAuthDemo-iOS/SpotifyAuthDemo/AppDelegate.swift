@@ -1,12 +1,4 @@
-//
-//  AppDelegate.swift
-//  SpotifyAuthDemo
-//
-//  Created by iosdv on 2020/5/14.
-//
-
 import UIKit
-
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

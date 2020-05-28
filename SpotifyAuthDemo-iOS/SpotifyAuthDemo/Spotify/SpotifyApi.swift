@@ -1,15 +1,4 @@
-//
-//  SpotifyApi.swift
-//  Wear_new
-//
-//  Created by iosdv on 2020/5/20.
-//  Copyright © 2020 quan. All rights reserved.
-//
-
 import Foundation
-import AFNetworking
-import SwiftyJSON
-import HandyJSON
 
 //MARK: - 网络接口
 enum SpotifyHTTPMethod: String {
@@ -27,9 +16,9 @@ protocol SpotifyAPI {
     
     var bodyData: Data? { get }
     
-    /// url 请求参数
+    /// url
     var query: [String: String] { get }
-    /// body 请求参数
+    /// body
     var params: [String: Any] { get }
     
     static func response(from data: Data) throws -> Response
@@ -56,23 +45,6 @@ extension SpotifyAPI where Response: Codable {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return try decoder.decode(Response.self, from: data)
-    }
-}
-
-extension SpotifyAPI where Response == SwiftyJSON.JSON {
-    static func response(from data: Data) throws -> Response {
-        return try SwiftyJSON.JSON(data: data)
-    }
-}
-
-extension SpotifyAPI where Response: HandyJSON {
-    static func response(from data: Data) throws -> Response {
-        let object = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
-        guard let dict = object as? [String: Any] else {
-            throw NSError(domain: "Decode", code: 22, userInfo: nil)
-        }
-        // TODO: -
-        return Response.deserialize(from: dict)!
     }
 }
 
@@ -156,9 +128,10 @@ extension SpotifyAPI where Self: ResourceAudioAnalysisAPI {
 }
 
 //https://developer.spotify.com/documentation/web-api/reference/playlists/remove-tracks-playlist/
+///Remove Items from a Playlist
 struct SPTRemoveItemsFromPlaylistApi: SpotifyAPI, SpotifyAPIVersion1, ResourcePlaylistsAPI, DeleteAPI {
     
-    typealias Response = JSON
+    typealias Response = Dictionary<String, Any>
     
     var query: [String : String] {
         return [:]
@@ -195,7 +168,7 @@ struct SPTUserProfileApi: SpotifyAPIVersion1, ResourceMeAPI, GetAPI {
 
 //https://developer.spotify.com/documentation/web-api/reference/playlists/get-a-list-of-current-users-playlists/
 struct SPTUserPlaylistsApi: SpotifyAPIVersion1, ResourceMeAPI, GetAPI {
-    typealias Response = JSON
+    typealias Response = Dictionary<String, Any>
     var query: [String : String] {
         return [:]
     }
@@ -209,7 +182,7 @@ struct SPTUserPlaylistsApi: SpotifyAPIVersion1, ResourceMeAPI, GetAPI {
 
 //https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-analysis/
 struct SPTAudioAnalysisApi: SpotifyAPIVersion1, ResourceAudioAnalysisAPI, GetAPI {
-    typealias Response = JSON
+    typealias Response = Dictionary<String, Any>
     var query: [String : String] {
         return [:]
     }
@@ -222,10 +195,10 @@ struct SPTAudioAnalysisApi: SpotifyAPIVersion1, ResourceAudioAnalysisAPI, GetAPI
 
 //https://developer.spotify.com/documentation/web-api/reference/search/search/
 struct SPTSearchApi: SpotifyAPIVersion1, ResourceSearchAPI, GetAPI {
+    typealias Response = Dictionary<String, Any>
     enum SearchType: String {
         case album, artist, playlist, track, show, episode
     }
-    typealias Response = SpotifySearchRM
     var query: [String : String] {
         let type = self.type.map({ $0.rawValue }).joined(separator: ",")
         var dict = ["q": self.q, "type": type]
