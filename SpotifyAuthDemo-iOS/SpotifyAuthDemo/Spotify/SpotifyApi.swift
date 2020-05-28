@@ -49,10 +49,8 @@ extension SpotifyAPI {
         }
         return string
     }
-
 }
 
-protocol ResponseCodeableAPI { }
 extension SpotifyAPI where Response: Codable {
     static func response(from data: Data) throws -> Response {
         let decoder = JSONDecoder()
@@ -61,14 +59,12 @@ extension SpotifyAPI where Response: Codable {
     }
 }
 
-protocol ResponseJSONAPI { }
 extension SpotifyAPI where Response == SwiftyJSON.JSON {
     static func response(from data: Data) throws -> Response {
         return try SwiftyJSON.JSON(data: data)
     }
 }
 
-protocol ResponseHandyJSONAPI { }
 extension SpotifyAPI where Response: HandyJSON {
     static func response(from data: Data) throws -> Response {
         let object = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
@@ -80,7 +76,6 @@ extension SpotifyAPI where Response: HandyJSON {
     }
 }
 
-protocol ResponseDictionaryAPI { }
 extension SpotifyAPI where Response == Dictionary<String, Any> {
     static func response(from data: Data) throws -> Response {
         let object = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
@@ -161,7 +156,7 @@ extension SpotifyAPI where Self: ResourceAudioAnalysisAPI {
 }
 
 //https://developer.spotify.com/documentation/web-api/reference/playlists/remove-tracks-playlist/
-struct SPTRemoveItemsFromPlaylistApi: SpotifyAPI, SpotifyAPIVersion1, ResourcePlaylistsAPI, DeleteAPI, ResponseJSONAPI {
+struct SPTRemoveItemsFromPlaylistApi: SpotifyAPI, SpotifyAPIVersion1, ResourcePlaylistsAPI, DeleteAPI {
     
     typealias Response = JSON
     
@@ -184,7 +179,7 @@ struct SPTRemoveItemsFromPlaylistApi: SpotifyAPI, SpotifyAPIVersion1, ResourcePl
 }
 
 //https://developer.spotify.com/documentation/web-api/reference/users-profile/get-current-users-profile/
-struct SPTUserProfileApi: SpotifyAPIVersion1, ResourceMeAPI, GetAPI, ResponseJSONAPI {
+struct SPTUserProfileApi: SpotifyAPIVersion1, ResourceMeAPI, GetAPI {
     
     typealias Response = SpotifyUserProfile
     var query: [String : String] {
@@ -199,7 +194,7 @@ struct SPTUserProfileApi: SpotifyAPIVersion1, ResourceMeAPI, GetAPI, ResponseJSO
 }
 
 //https://developer.spotify.com/documentation/web-api/reference/playlists/get-a-list-of-current-users-playlists/
-struct SPTUserPlaylistsApi: SpotifyAPIVersion1, ResourceMeAPI, GetAPI, ResponseJSONAPI {
+struct SPTUserPlaylistsApi: SpotifyAPIVersion1, ResourceMeAPI, GetAPI {
     typealias Response = JSON
     var query: [String : String] {
         return [:]
@@ -213,7 +208,7 @@ struct SPTUserPlaylistsApi: SpotifyAPIVersion1, ResourceMeAPI, GetAPI, ResponseJ
 }
 
 //https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-analysis/
-struct SPTAudioAnalysisApi: SpotifyAPIVersion1, ResourceAudioAnalysisAPI, GetAPI, ResponseJSONAPI {
+struct SPTAudioAnalysisApi: SpotifyAPIVersion1, ResourceAudioAnalysisAPI, GetAPI {
     typealias Response = JSON
     var query: [String : String] {
         return [:]
@@ -226,7 +221,7 @@ struct SPTAudioAnalysisApi: SpotifyAPIVersion1, ResourceAudioAnalysisAPI, GetAPI
 }
 
 //https://developer.spotify.com/documentation/web-api/reference/search/search/
-struct SPTSearchApi: SpotifyAPIVersion1, ResourceSearchAPI, GetAPI, ResponseHandyJSONAPI {
+struct SPTSearchApi: SpotifyAPIVersion1, ResourceSearchAPI, GetAPI {
     enum SearchType: String {
         case album, artist, playlist, track, show, episode
     }

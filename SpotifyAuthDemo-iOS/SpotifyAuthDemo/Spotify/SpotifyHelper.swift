@@ -17,7 +17,8 @@ protocol SpotifyPersistenceToken {
 }
 
 protocol SpotifyAuthControl {
-    func initiateSession(_ viewController: UIViewController?)
+    var tag: String { get }
+    func initiateSession(_ viewController: UIViewController?) -> Bool
     func renewSession(refreshToken: String?) -> Bool
     func unlink()
     func application(app: UIApplication, url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool
@@ -57,6 +58,7 @@ struct SpotifySaveTokenUserDefaults: SpotifyPersistenceToken {
 }
 
 struct SpotifyAuthWithSDK: SpotifyAuthControl {
+    
     init(config: SpotifyConfigurate, delegate: SPTSessionManagerDelegate) {
         let spotifyConfiguration = SPTConfiguration(clientID: config.clientID, redirectURL: URL(string: config.redirectURI)!)
         let tokenSwapURL: URL? = URL(string: config.swapURLTest)
@@ -68,18 +70,26 @@ struct SpotifyAuthWithSDK: SpotifyAuthControl {
             spotifyConfiguration.playURI = ""
         }
         self.spotifySessionManager = SPTSessionManager(configuration: spotifyConfiguration, delegate: delegate)
+        self.spotifySessionManager.alwaysShowAuthorizationDialog = false
         self.sptScope = config.requestedScopes
     }
     
     let spotifySessionManager: SPTSessionManager
     private let sptScope: SPTScope
+    var tag: String {
+        return "SDK"
+    }
 
-    func initiateSession(_ viewController: UIViewController? = nil) {
+    func initiateSession(_ viewController: UIViewController? = nil) -> Bool {
+        guard self.spotifySessionManager.isSpotifyAppInstalled else {
+            return false
+        }
         if #available(iOS 11.0, *) {
             self.getSession()
         } else {
             self.getSessionBeforeiOS11(viewController)
         }
+        return true
     }
     
     @available(iOS 11.0, *)
@@ -102,6 +112,9 @@ struct SpotifyAuthWithSDK: SpotifyAuthControl {
     }
     
     func application(app: UIApplication, url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
+        guard self.spotifySessionManager.isSpotifyAppInstalled else {
+            return false
+        }
         return self.spotifySessionManager.application(app, open: url, options: options)
     }
     
@@ -115,31 +128,40 @@ protocol SpotifyAuthWithWebDelegate: class {
 }
 
 class SpotifyAuthWithWeb: SpotifyAuthControl {
+    deinit {
+        logger.debug("SpotifyAuthWithWeb deinit")
+    }
     init(config: SpotifyConfigurate, delegate: SpotifyAuthWithWebDelegate) {
         self.spotifyConfig = config
         self.delegate = delegate
     }
     
     let spotifyConfig: SpotifyConfigurate
+    var webVC: UIViewController?
     weak var delegate: SpotifyAuthWithWebDelegate?
+    var tag: String {
+        return "Web"
+    }
     
-    func initiateSession(_ viewController: UIViewController? = nil) {
+    func initiateSession(_ viewController: UIViewController? = nil) -> Bool {
         guard let redirect_uri = spotifyConfig.redirectURI.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
-            return
+            return false
         }
         guard let scope = spotifyConfig.requestedScopesString.joined(separator: " ").addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
-            return
+            return false
         }
         guard let presentedVC = viewController ?? UIApplication.AppDelegate.window?.topMostController else {
             logger.error("initiateSession presentedVC notfound")
-            return
+            return false
         }
-        guard let url = URL(string: "https://accounts.spotify.com/authorize?client_id=\(spotifyConfig.clientID)&response_type=code&redirect_uri=\(redirect_uri)&scope=\(scope)") else {
-            return
+        guard let url = URL(string: "https://accounts.spotify.com/authorize?client_id=\(spotifyConfig.clientID)&response_type=code&redirect_uri=\(redirect_uri)&scope=\(scope)&show_dialog=true") else {
+            return false
         }
         // TOOD: presenting Auth Web
         let web = authViewControllerWithURL(url: url)
         presentedVC.present(web, animated: true, completion: nil)
+        webVC = web
+        return true
     }
     
     // MARK:  - Spotify 网页授权
@@ -154,18 +176,26 @@ class SpotifyAuthWithWeb: SpotifyAuthControl {
         guard let token = refreshToken else {
             return false
         }
-        self.requestRenewToken(refreshToken: token)
-        return true
+        do {
+            try self.requestRenewToken(refreshToken: token)
+            return true
+        } catch {
+            logger.error(error.localizedDescription)
+            return false
+        }
     }
     
     func application(app: UIApplication, url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
-        // TODO: - 获取 code 去 swap accessToken
-        // TODO: - 判断
-        //⚠️ 还不可用
-//        if url.host == spotifyConfig.redirectURI {
-//            return true
-//        }
-        return false
+        // 获取 code 去 swap accessToken
+        guard url.absoluteString.contains(spotifyConfig.redirectURI), let query = url.query else {
+            return false
+        }
+        self.requestSwapToken(code: nil, queryCode: query) { [weak self] in
+            DispatchQueue.main.async {
+                self?.webVC?.dismiss(animated: true, completion: nil)
+            }
+        }
+        return true
     }
     
     func unlink() {
@@ -191,23 +221,28 @@ class SpotifyAuthWithWeb: SpotifyAuthControl {
     
     ///使用 Code 获取新的 AccessToken、RefreshToken
     @discardableResult
-    func requestSwapToken(code: String, complete: () -> Void) -> URLSessionDataTask {
+    func requestSwapToken(code: String?, queryCode: String?, complete: @escaping () -> Void) -> URLSessionDataTask {
         guard let url = URL(string: spotifyConfig.swapURLTest) else {
             fatalError(SpotifyError.SessionNotFound.localizedDescription)
         }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         
-        let postString = "code=\(code)"
+        let postString = queryCode ?? "code=\(code ?? "")"
         request.httpBody = postString.data(using: .utf8)
         
         return self.postFormData(response: SpotifyAuthResponse.self, request: request) {
             [weak self]
             (auth) in
-            guard let accessToken = auth?.access_token,
-                let refreshToken = auth?.refresh_token,
-                let expiresIn = auth?.expires_in else {
-                    let model = SpotifyToken(error: auth?.error)
+            complete()
+            guard let auth = auth else {
+                self?.delegate?.spotifyDidAuth(token: nil)
+                return
+            }
+            guard let accessToken = auth.access_token,
+                let refreshToken = auth.refresh_token,
+                let expiresIn = auth.expires_in else {
+                    let model = SpotifyToken(error: auth.error)
                     self?.delegate?.spotifyDidAuth(token: model)
                     return
             }
@@ -218,9 +253,9 @@ class SpotifyAuthWithWeb: SpotifyAuthControl {
     
     ///使用 RefreshToken 刷新 AccessToken
     @discardableResult
-    func requestRenewToken(refreshToken: String) -> URLSessionDataTask {
+    func requestRenewToken(refreshToken: String) throws -> URLSessionDataTask {
         guard let url = URL(string: spotifyConfig.refreshURLTest) else {
-            fatalError(SpotifyError.SessionNotFound.localizedDescription)
+            throw SpotifyError.URLFail
         }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

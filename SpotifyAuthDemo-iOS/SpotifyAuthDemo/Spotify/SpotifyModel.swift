@@ -9,16 +9,14 @@
 import Foundation
 
 struct SpotifyConfigurate {
-    let clientID = ""
-    let redirectURI = ""
-    let tokenURL = "https://accounts.spotify.com/api/token"
-    var swapURL: String {
-        return "http://192.168.0.143:1333/app/tokenSwap"
+    let clientID = "xxxxxxxx"
+    let redirectURI = "xxxxxxxxx"
+    var swapURLTest: String {
+        return "\(Define.DomainUrl)/app/tokenSwap"
     }
-    var refreshURL: String {
-        return "http://192.168.0.143:1333/app/tokenRefresh"
+    var refreshURLTest: String {
+        return "\(Define.DomainUrl)/app/tokenRefresh"
     }
-
     
     var requestedScopes: SPTScope {
         return [.streaming,
@@ -42,6 +40,7 @@ struct SpotifyConfigurate {
                 "user-top-read",
                 "playlist-modify-public",
                 "playlist-modify-private",
+                "user-read-private",
                 ]
     }
 }
@@ -54,7 +53,7 @@ struct SpotifyToken {
     let expirationDate: TimeInterval?
     let error: String?
     ///创建日期
-    let createAt: Date = Date()
+    let createAt: Date
     ///过期日期
     var expiresAt: Date {
         if let exDate = expirationDate {
@@ -72,14 +71,16 @@ struct SpotifyToken {
         self.refreshToken = nil
         self.expiresIn = nil
         self.expirationDate = nil
+        self.createAt = Date()
     }
     
-    init(accessToken: String?, refreshToken: String?, expiresIn: TimeInterval?,         expirationDate: TimeInterval?) {
+    init(accessToken: String?, refreshToken: String?, expiresIn: TimeInterval?, expirationDate: TimeInterval?, createAt: Date = Date()) {
         self.error = nil
         self.accessToken = accessToken
         self.refreshToken = refreshToken
         self.expiresIn = expiresIn
         self.expirationDate = expirationDate
+        self.createAt = createAt
     }
     
     //是否有效
@@ -114,7 +115,7 @@ struct SpotifyToken {
 }
 
 extension SpotifyToken: Codable { }
-struct SpotifyUserProfile: Codable {
+struct SpotifyUserProfile: Codable, SpotifyErrorModel {
     struct Image: Codable {
         let height: Int?
         let url: String
@@ -134,10 +135,14 @@ struct SpotifyUserProfile: Codable {
     let product: String?
     let type: String?
     let uri: String?
-    let error: SpotifyError?
+    var error: SpotifyError?
 }
 
 struct SpotifyError: Codable {
     let status: Int?
     let message: String?
+}
+
+protocol SpotifyErrorModel {
+    var error: SpotifyError? { get set }
 }

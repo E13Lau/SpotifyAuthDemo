@@ -10,6 +10,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+typealias SPTAuth = SpotifyManager
 // MARK: - SpotifyManager
 class SpotifyManager: NSObject {
     static let shared = SpotifyManager()
@@ -20,24 +21,26 @@ class SpotifyManager: NSObject {
         }
         return token
     }
+    private var refreshToken: String? {
+        guard let token = self.spotifyTokenRelay.value?.refreshToken else {
+            return nil
+        }
+        return token
+    }
     var tokenObservable: Observable<SpotifyToken?> {
         return spotifyTokenRelay.share()
     }
     
     private var spotifyTokenRelay: BehaviorRelay<SpotifyToken?> = BehaviorRelay(value: nil)
-    private var _refreshToken: String?
-    private var _expiresIn: Int?
     
     private var cacheUserProfile: SpotifyUserProfile?
     private var saveHelper: SpotifyPersistenceToken?
-    private var authHelper: SpotifyAuthControl?
-    private var webAuthHelper: SpotifyAuthWithWeb?
     private let spotifyConfig = SpotifyConfigurate()
     private var renewBag = DisposeBag()
+    private var authHelpers: [SpotifyAuthControl] = []
 
     private override init() {
         super.init()
-  
     }
         
     public func setup() {
@@ -46,9 +49,10 @@ class SpotifyManager: NSObject {
         #endif
         registerObserver()
         saveHelper = SpotifySaveTokenUserDefaults()
-        webAuthHelper = SpotifyAuthWithWeb(config: spotifyConfig, delegate: self)
-        authHelper = SpotifyAuthWithSDK(config: spotifyConfig, delegate: self)
-        
+        let web = SpotifyAuthWithWeb(config: spotifyConfig, delegate: self)
+        let sdk = SpotifyAuthWithSDK(config: spotifyConfig, delegate: self)
+        self.authHelpers = [sdk, web]
+
         // TODO: - 放在登录后？
         self.initSession()
     }
@@ -63,24 +67,29 @@ class SpotifyManager: NSObject {
             return
         }
         // 有效且没有接近期限
-        self.spotifyTokenRelay.accept(token)
+        self.on(next: token)
         self.setRenewTimer(time: token.deadline - 300)
     }
     
     @discardableResult
     public func initiateSession(_ viewController: UIViewController? = nil) -> Observable<SpotifyToken?> {
         let single = singleSpotifyToken()
-        authHelper?.initiateSession(viewController)
+        for helper in authHelpers {
+            if helper.initiateSession(viewController) {
+                break
+            }
+        }
         return single
     }
 
     //解除绑定
     func unlink() {
-        self.spotifyTokenRelay.accept(nil)
         self.saveHelper?.removeSpotifyToken()
-        self.authHelper?.unlink()
-        self.webAuthHelper?.unlink()
+        for helper in authHelpers {
+            helper.unlink()
+        }
         self.cacheUserProfile = nil
+        self.spotifyTokenRelay.accept(nil)
     }
     
     ///取 spotifyTokenRelay.value 刷新
@@ -98,10 +107,11 @@ class SpotifyManager: NSObject {
         logger.debug("尝试去刷新 Spotify 的 accessToken")
 
         let single = singleSpotifyToken()
-        if self.authHelper?.renewSession(refreshToken: refreshToken) == false {
-            _ = self.webAuthHelper?.renewSession(refreshToken: refreshToken)
+        for helper in authHelpers {
+            if helper.renewSession(refreshToken: refreshToken) {
+                break
+            }
         }
-        
         return single
     }
     
@@ -126,6 +136,20 @@ class SpotifyManager: NSObject {
             .disposed(by: rx.disposeBag)
     }
     
+    func on(next token: SpotifyToken?) {
+        guard let token = token else {
+            self.unlink()
+            return
+        }
+        self.cacheUserProfile = nil
+        guard token.error == nil else {
+            self.spotifyTokenRelay.accept(token)
+            self.spotifyTokenRelay.accept(nil)
+            return
+        }
+        self.spotifyTokenRelay.accept(token)
+    }
+    
     private func setRenewTimer(time: TimeInterval) {
         self.renewBag = DisposeBag()
         logger.debug("\(time)秒后执行 renewTokenIfNeed()")
@@ -148,12 +172,19 @@ class SpotifyManager: NSObject {
         return spotifyTokenRelay
                 .skip(1)
                 .take(1)
-                .timeout(.seconds(15), scheduler: MainScheduler.asyncInstance)
     }
     
     func application(app: UIApplication, url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
         logger.debug("application(app: UIApplication, url: \(url), options: \(options)")
-        return self.authHelper?.application(app: app, url: url, options: options) ?? false
+        
+        var bool = false
+        for helper in authHelpers {
+            if helper.application(app: app, url: url, options: options) {
+                bool = true
+                break
+            }
+        }
+        return bool
     }
     
 }
@@ -221,13 +252,13 @@ extension SpotifyManager {
         }
         _ = self.renewSession(refreshToken: refreshToken)
             .subscribe(onNext: { (t) in
-                // 刷新成功 返回新 Token
-                if let t = t?.accessToken {
-                    complete?(t)
-                } else {
+                guard let t = t?.accessToken else {
                     // 刷新失败 返回旧 Token
                     complete?(accessToken)
+                    return
                 }
+                // 刷新成功 返回新 Token
+                complete?(t)
             })
     }
     
@@ -240,11 +271,11 @@ extension SpotifyManager {
         guard let isPremium = self.isPremium else {
             self.getUserProfile { [weak self]
                 (_) in
-                if let isPremium = self?.isPremium {
-                    complete?(isPremium)
-                } else {
+                guard let isPremium = self?.isPremium else {
                     complete?(false)
+                    return
                 }
+                complete?(isPremium)
             }
             return
         }
@@ -262,6 +293,9 @@ extension SpotifyManager {
                 switch result {
                 case .success(let profile):
                     if let err = profile.error {
+                        if err.status == 401 {
+                            
+                        }
                         logger.error(err.message ?? "")
                         complete?(nil)
                         return
@@ -277,10 +311,6 @@ extension SpotifyManager {
         }
         complete?(cache)
     }
-    
-    func saveToken() {
-        
-    }
 }
 
 
@@ -288,25 +318,34 @@ extension SpotifyManager {
 extension SpotifyManager: SPTSessionManagerDelegate {
     func sessionManager(manager: SPTSessionManager, didInitiate session: SPTSession) {
         let token = SpotifyToken(accessToken: session.accessToken, refreshToken: session.refreshToken, expiresIn: nil, expirationDate: session.expirationDate.timeIntervalSinceReferenceDate)
-        self.spotifyTokenRelay.accept(token)
+        self.on(next: token)
     }
     
     func sessionManager(manager: SPTSessionManager, didFailWith error: Error) {
-//        let error = error as NSError
+        let error = error as NSError
+        logger.error(error)
+        if error.code == 1 {
+            self.on(next: nil)
+            return
+        }
         let token = SpotifyToken(error: "Spotify login error")
-        self.spotifyTokenRelay.accept(token)
+        self.on(next: token)
     }
     
     func sessionManager(manager: SPTSessionManager, didRenew session: SPTSession) {
         let token = SpotifyToken(accessToken: session.accessToken, refreshToken: session.refreshToken, expiresIn: nil, expirationDate: session.expirationDate.timeIntervalSinceReferenceDate)
-        self.spotifyTokenRelay.accept(token)
+        self.on(next: token)
+    }
+    
+    func sessionManager(manager: SPTSessionManager, shouldRequestAccessTokenWith code: String) -> Bool {
+        logger.debug("sessionManager(manager: , shouldRequestAccessTokenWith code:\(code)")
+        return true
     }
 }
 
-// MARK: - SpotifyAuthWithWebDelegate
 extension SpotifyManager: SpotifyAuthWithWebDelegate {
     func spotifyDidAuth(token: SpotifyToken?) {
-        self.spotifyTokenRelay.accept(token)
+        self.on(next: token)
     }
 }
 
@@ -317,11 +356,30 @@ extension Notification.Name {
     static let testSpotifyTokenInvaild = Notification.Name("spotifyTokenInvaild")
     static let testSpotifyTokenWillInvaild = Notification.Name("spotifyTokenWillInvaild")
     static let testSpotifyTokenError = Notification.Name("testSpotifyTokenError")
+    static let testSpotifyTokenAuthToggle = Notification.Name("testSpotifyTokenAuthToggle")
+    static let testSpotifyTokenSaveInvaild = Notification.Name("testSpotifyTokenSaveInvaild")
 }
 
 private extension SpotifyManager {
     
     func registerTestNotify() {
+        
+        NotificationCenter.default.rx
+            .notification(.testSpotifyTokenSaveInvaild)
+            .subscribe(onNext: { [weak self]
+                (notification) in
+                self?.t_saveInvaildToken()
+            })
+            .disposed(by: rx.disposeBag)
+        
+        NotificationCenter.default.rx
+            .notification(.testSpotifyTokenAuthToggle)
+            .subscribe(onNext: { [weak self]
+                (notification) in
+                self?.t_toggleAuth()
+            })
+            .disposed(by: rx.disposeBag)
+        
         NotificationCenter.default.rx
             .notification(.testSpotifyRenewToken)
             .subscribe(onNext: { [weak self]
@@ -369,11 +427,11 @@ private extension SpotifyManager {
             return
         }
         if expiresIn == 0 {
-            self.spotifyTokenRelay.accept(nil)
+            self.on(next: nil)
             return
         }
         let newToken = SpotifyToken(accessToken: oldToken.accessToken, refreshToken: oldToken.refreshToken, expiresIn: expiresIn, expirationDate: nil)
-        self.spotifyTokenRelay.accept(newToken)
+        self.on(next: newToken)
     }
     
     func t_renewToken() {
@@ -382,13 +440,36 @@ private extension SpotifyManager {
     
     func t_madeError() {
         let newToken = SpotifyToken(error: "Spotify Token Error")
-        self.spotifyTokenRelay.accept(newToken)
+        self.on(next: newToken)
     }
     
     func t_renewTokenWithWeb() {
         if let token = self.spotifyTokenRelay.value,
             let refreshToken = token.refreshToken {
-            _ = self.webAuthHelper?.renewSession(refreshToken: refreshToken)
+            _ = self.authHelpers
+                .first(where: { $0.tag == "Web" })?
+                .renewSession(refreshToken: refreshToken)
         }
     }
+    
+    func t_toggleAuth() {
+        self.authHelpers = self.authHelpers.reversed()
+        let type = self.authHelpers.first?.tag ?? ""
+        DispatchQueue.main.async {
+            HUD().showError(at: "现在的授权方式为\(type)")
+        }
+    }
+    
+    func t_saveInvaildToken() {
+        guard let oldToken = self.spotifyTokenRelay.value else {
+            return
+        }
+        let date = Date().addingTimeInterval(-(60 * 60 * 24))
+        let token = SpotifyToken(accessToken: oldToken.accessToken, refreshToken: oldToken.refreshToken, expiresIn: oldToken.expiresIn, expirationDate: oldToken.expirationDate, createAt: date)
+        self.saveHelper?.save(spotifyToken: token)
+        DispatchQueue.main.async {
+            HUD().showError(at: "保存成功")
+        }
+    }
+    
 }

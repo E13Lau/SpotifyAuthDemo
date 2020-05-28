@@ -14,9 +14,9 @@
 		516DCA54246D1DD500751FBE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 516DCA53246D1DD500751FBE /* Preview Assets.xcassets */; };
 		516DCA57246D1DD500751FBE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 516DCA55246D1DD500751FBE /* LaunchScreen.storyboard */; };
 		5174EA67246E3BB0004E3D63 /* SpotifyiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5174EA66246E3BB0004E3D63 /* SpotifyiOS.framework */; };
+		517A041C247F63C000CDC3D1 /* SpotifyRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 517A041B247F63C000CDC3D1 /* SpotifyRequest.swift */; };
 		519C0F7D247D065400ED14CE /* SpotifyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 519C0F77247D065400ED14CE /* SpotifyManager.swift */; };
 		519C0F7E247D065400ED14CE /* SpotifyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 519C0F78247D065400ED14CE /* SpotifyHelper.swift */; };
-		519C0F7F247D065400ED14CE /* SpotifyManager+Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 519C0F79247D065400ED14CE /* SpotifyManager+Request.swift */; };
 		519C0F80247D065400ED14CE /* SpotifyApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 519C0F7A247D065400ED14CE /* SpotifyApi.swift */; };
 		519C0F81247D065400ED14CE /* SpotifyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 519C0F7B247D065400ED14CE /* SpotifyModel.swift */; };
 /* End PBXBuildFile section */
@@ -32,9 +32,9 @@
 		516DCA58246D1DD500751FBE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5174EA66246E3BB0004E3D63 /* SpotifyiOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SpotifyiOS.framework; sourceTree = "<group>"; };
 		5174EA68246E3CE4004E3D63 /* SpotifyAuthDemo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SpotifyAuthDemo-Bridging-Header.h"; sourceTree = "<group>"; };
+		517A041B247F63C000CDC3D1 /* SpotifyRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotifyRequest.swift; sourceTree = "<group>"; };
 		519C0F77247D065400ED14CE /* SpotifyManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotifyManager.swift; sourceTree = "<group>"; };
 		519C0F78247D065400ED14CE /* SpotifyHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotifyHelper.swift; sourceTree = "<group>"; };
-		519C0F79247D065400ED14CE /* SpotifyManager+Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SpotifyManager+Request.swift"; sourceTree = "<group>"; };
 		519C0F7A247D065400ED14CE /* SpotifyApi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotifyApi.swift; sourceTree = "<group>"; };
 		519C0F7B247D065400ED14CE /* SpotifyModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotifyModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -97,7 +97,7 @@
 			children = (
 				519C0F77247D065400ED14CE /* SpotifyManager.swift */,
 				519C0F78247D065400ED14CE /* SpotifyHelper.swift */,
-				519C0F79247D065400ED14CE /* SpotifyManager+Request.swift */,
+				517A041B247F63C000CDC3D1 /* SpotifyRequest.swift */,
 				519C0F7A247D065400ED14CE /* SpotifyApi.swift */,
 				519C0F7B247D065400ED14CE /* SpotifyModel.swift */,
 			);
@@ -177,11 +177,11 @@
 			files = (
 				519C0F7D247D065400ED14CE /* SpotifyManager.swift in Sources */,
 				516DCA4B246D1DD200751FBE /* AppDelegate.swift in Sources */,
-				519C0F7F247D065400ED14CE /* SpotifyManager+Request.swift in Sources */,
 				516DCA4D246D1DD200751FBE /* SceneDelegate.swift in Sources */,
 				519C0F7E247D065400ED14CE /* SpotifyHelper.swift in Sources */,
 				516DCA4F246D1DD200751FBE /* ContentView.swift in Sources */,
 				519C0F81247D065400ED14CE /* SpotifyModel.swift in Sources */,
+				517A041C247F63C000CDC3D1 /* SpotifyRequest.swift in Sources */,
 				519C0F80247D065400ED14CE /* SpotifyApi.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -321,7 +321,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"SpotifyAuthDemo/Preview Content\"";
-				DEVELOPMENT_TEAM = PCL488N9Z6;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -348,7 +348,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"SpotifyAuthDemo/Preview Content\"";
-				DEVELOPMENT_TEAM = PCL488N9Z6;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
