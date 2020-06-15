@@ -1,7 +1,9 @@
 import Foundation
 import RxSwift
+import RxRelay
 import RxCocoa
 import Logging
+import Combine
 
 let logger = Logger(label: "SpotifyManager")
 
@@ -280,8 +282,8 @@ extension SpotifyManager {
                 switch result {
                 case .success(let profile):
                     if let err = profile.error {
-                        if err.status == 401 {
-                            
+                        if err.status == ResponseStatusCodes.unauthorized {
+                            // TODO: - 
                         }
                         logger.error("\(err.message ?? "")")
                         complete?(nil)

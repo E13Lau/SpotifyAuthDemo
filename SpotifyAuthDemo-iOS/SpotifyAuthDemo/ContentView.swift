@@ -46,7 +46,7 @@ struct SAButton: View {
                     .fontWeight(.semibold)
             }
             .padding()
-            .font(.largeTitle)
+            .font(.title)
             .foregroundColor(.white)
             .background(Color.red)
             .cornerRadius(20)

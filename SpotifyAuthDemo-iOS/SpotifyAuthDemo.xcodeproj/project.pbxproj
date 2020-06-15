@@ -18,6 +18,19 @@
 		519C0F7E247D065400ED14CE /* SpotifyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 519C0F78247D065400ED14CE /* SpotifyHelper.swift */; };
 		519C0F80247D065400ED14CE /* SpotifyApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 519C0F7A247D065400ED14CE /* SpotifyApi.swift */; };
 		519C0F81247D065400ED14CE /* SpotifyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 519C0F7B247D065400ED14CE /* SpotifyModel.swift */; };
+		5B7854572482250E0010E696 /* SpotifyAlbumsApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B7854562482250E0010E696 /* SpotifyAlbumsApi.swift */; };
+		5B785459248225180010E696 /* SpotifyArtistsApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B785458248225180010E696 /* SpotifyArtistsApi.swift */; };
+		5B78545B248225210010E696 /* SpotifyBrowseApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B78545A248225210010E696 /* SpotifyBrowseApi.swift */; };
+		5B78545D2482252A0010E696 /* SpotifyEpisodesApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B78545C2482252A0010E696 /* SpotifyEpisodesApi.swift */; };
+		5B78545F248225330010E696 /* SpotifyFollowApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B78545E248225330010E696 /* SpotifyFollowApi.swift */; };
+		5B785461248225400010E696 /* SpotifyLibraryApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B785460248225400010E696 /* SpotifyLibraryApi.swift */; };
+		5B785463248225500010E696 /* SpotifyPersonaliztionApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B785462248225500010E696 /* SpotifyPersonaliztionApi.swift */; };
+		5B785465248225570010E696 /* SpotifyPlayerApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B785464248225570010E696 /* SpotifyPlayerApi.swift */; };
+		5B785467248225600010E696 /* SpotifyPlaylistsApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B785466248225600010E696 /* SpotifyPlaylistsApi.swift */; };
+		5B7854692482256C0010E696 /* SpotifySearchApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B7854682482256C0010E696 /* SpotifySearchApi.swift */; };
+		5B78546B248225750010E696 /* SpotifyShowsApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B78546A248225750010E696 /* SpotifyShowsApi.swift */; };
+		5B78546D2482257F0010E696 /* SpotifyTracksApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B78546C2482257F0010E696 /* SpotifyTracksApi.swift */; };
+		5B78546F2482258B0010E696 /* SpotifyUsersProfileApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B78546E2482258B0010E696 /* SpotifyUsersProfileApi.swift */; };
 		5BC07BA124800BD200B3AFDA /* SpotifyiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC07BA024800BD200B3AFDA /* SpotifyiOS.framework */; };
 		5BC07BAF24800D8500B3AFDA /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 5BC07BAE24800D8500B3AFDA /* Logging */; };
 		5BC07BB2248018DC00B3AFDA /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 5BC07BB1248018DC00B3AFDA /* RxSwift */; };
@@ -41,6 +54,19 @@
 		519C0F78247D065400ED14CE /* SpotifyHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotifyHelper.swift; sourceTree = "<group>"; };
 		519C0F7A247D065400ED14CE /* SpotifyApi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotifyApi.swift; sourceTree = "<group>"; };
 		519C0F7B247D065400ED14CE /* SpotifyModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpotifyModel.swift; sourceTree = "<group>"; };
+		5B7854562482250E0010E696 /* SpotifyAlbumsApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyAlbumsApi.swift; sourceTree = "<group>"; };
+		5B785458248225180010E696 /* SpotifyArtistsApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyArtistsApi.swift; sourceTree = "<group>"; };
+		5B78545A248225210010E696 /* SpotifyBrowseApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyBrowseApi.swift; sourceTree = "<group>"; };
+		5B78545C2482252A0010E696 /* SpotifyEpisodesApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyEpisodesApi.swift; sourceTree = "<group>"; };
+		5B78545E248225330010E696 /* SpotifyFollowApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyFollowApi.swift; sourceTree = "<group>"; };
+		5B785460248225400010E696 /* SpotifyLibraryApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyLibraryApi.swift; sourceTree = "<group>"; };
+		5B785462248225500010E696 /* SpotifyPersonaliztionApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyPersonaliztionApi.swift; sourceTree = "<group>"; };
+		5B785464248225570010E696 /* SpotifyPlayerApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyPlayerApi.swift; sourceTree = "<group>"; };
+		5B785466248225600010E696 /* SpotifyPlaylistsApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyPlaylistsApi.swift; sourceTree = "<group>"; };
+		5B7854682482256C0010E696 /* SpotifySearchApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifySearchApi.swift; sourceTree = "<group>"; };
+		5B78546A248225750010E696 /* SpotifyShowsApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyShowsApi.swift; sourceTree = "<group>"; };
+		5B78546C2482257F0010E696 /* SpotifyTracksApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyTracksApi.swift; sourceTree = "<group>"; };
+		5B78546E2482258B0010E696 /* SpotifyUsersProfileApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyUsersProfileApi.swift; sourceTree = "<group>"; };
 		5BC07BA024800BD200B3AFDA /* SpotifyiOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SpotifyiOS.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -109,9 +135,30 @@
 				519C0F78247D065400ED14CE /* SpotifyHelper.swift */,
 				517A041B247F63C000CDC3D1 /* SpotifyRequest.swift */,
 				519C0F7A247D065400ED14CE /* SpotifyApi.swift */,
+				5B785455248224E70010E696 /* Api */,
 				519C0F7B247D065400ED14CE /* SpotifyModel.swift */,
 			);
 			path = Spotify;
+			sourceTree = "<group>";
+		};
+		5B785455248224E70010E696 /* Api */ = {
+			isa = PBXGroup;
+			children = (
+				5B7854562482250E0010E696 /* SpotifyAlbumsApi.swift */,
+				5B785458248225180010E696 /* SpotifyArtistsApi.swift */,
+				5B78545A248225210010E696 /* SpotifyBrowseApi.swift */,
+				5B78545C2482252A0010E696 /* SpotifyEpisodesApi.swift */,
+				5B78545E248225330010E696 /* SpotifyFollowApi.swift */,
+				5B785460248225400010E696 /* SpotifyLibraryApi.swift */,
+				5B785462248225500010E696 /* SpotifyPersonaliztionApi.swift */,
+				5B785464248225570010E696 /* SpotifyPlayerApi.swift */,
+				5B785466248225600010E696 /* SpotifyPlaylistsApi.swift */,
+				5B7854682482256C0010E696 /* SpotifySearchApi.swift */,
+				5B78546A248225750010E696 /* SpotifyShowsApi.swift */,
+				5B78546C2482257F0010E696 /* SpotifyTracksApi.swift */,
+				5B78546E2482258B0010E696 /* SpotifyUsersProfileApi.swift */,
+			);
+			path = Api;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -198,12 +245,25 @@
 			files = (
 				519C0F7D247D065400ED14CE /* SpotifyManager.swift in Sources */,
 				516DCA4B246D1DD200751FBE /* AppDelegate.swift in Sources */,
+				5B785459248225180010E696 /* SpotifyArtistsApi.swift in Sources */,
+				5B785463248225500010E696 /* SpotifyPersonaliztionApi.swift in Sources */,
+				5B785461248225400010E696 /* SpotifyLibraryApi.swift in Sources */,
 				516DCA4D246D1DD200751FBE /* SceneDelegate.swift in Sources */,
+				5B785465248225570010E696 /* SpotifyPlayerApi.swift in Sources */,
+				5B785467248225600010E696 /* SpotifyPlaylistsApi.swift in Sources */,
+				5B78546B248225750010E696 /* SpotifyShowsApi.swift in Sources */,
+				5B78546D2482257F0010E696 /* SpotifyTracksApi.swift in Sources */,
 				519C0F7E247D065400ED14CE /* SpotifyHelper.swift in Sources */,
 				516DCA4F246D1DD200751FBE /* ContentView.swift in Sources */,
 				519C0F81247D065400ED14CE /* SpotifyModel.swift in Sources */,
+				5B78545D2482252A0010E696 /* SpotifyEpisodesApi.swift in Sources */,
 				517A041C247F63C000CDC3D1 /* SpotifyRequest.swift in Sources */,
+				5B7854572482250E0010E696 /* SpotifyAlbumsApi.swift in Sources */,
+				5B78545B248225210010E696 /* SpotifyBrowseApi.swift in Sources */,
+				5B78546F2482258B0010E696 /* SpotifyUsersProfileApi.swift in Sources */,
 				519C0F80247D065400ED14CE /* SpotifyApi.swift in Sources */,
+				5B78545F248225330010E696 /* SpotifyFollowApi.swift in Sources */,
+				5B7854692482256C0010E696 /* SpotifySearchApi.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
